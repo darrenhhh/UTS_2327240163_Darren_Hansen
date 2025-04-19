@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran THR </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #797979;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>   
+    <div class="container">
+        <h1>Pembayaran THR</h1>
+        
+        <div class="form-group">
+            <label for="gajiPokok">Gaji Pokok (Rp):</label>
+            <input type="number" id="gajiPokok" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="tunjanganTetap">Tunjangan Tetap (Rp):</label>
+            <input type="number" id="tunjanganTetap" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="masaKerja">Masa Kerja (bulan):</label>
+            <input type="number" id="masaKerja" min="0" max="1200" required>
+        </div>
+        
+        <button id="hitungBtn">Hitung THR dan Pajak</button>
+        
+        <div id="resultContainer" class="result hidden">
+            <h2>Hasil Perhitungan:</h2>
+            <p id="resultText"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('hitungBtn').addEventListener('click', function() {
+            const gajiPokok = parseFloat(document.getElementById('gajiPokok').value);
+            const tunjanganTetap = parseFloat(document.getElementById('tunjanganTetap').value);
+            const masaKerja = parseFloat(document.getElementById('masaKerja').value);           
+            if (isNaN(gajiPokok) || isNaN(tunjanganTetap) || isNaN(masaKerja)) {
+                alert('Harap isi semua field dengan benar!');
+                return;
+            }
+            const totalGaji = gajiPokok + tunjanganTetap;
+            let thr;
+            if (masaKerja >= 12) {
+                thr = totalGaji;
+            } else if (masaKerja > 0) {
+                thr = (masaKerja / 12) * totalGaji;
+            } else {
+                thr = 0;
+            }
+            
+            let pph21 = 0;
+            const ptkp = 4500000;
+            const penghasilanKenaPajak = totalGaji - ptkp;
+            
+            if (penghasilanKenaPajak > 0) {
+                pph21 = penghasilanKenaPajak * 0.05;
+            }
+            
+            const totalPembayaran = thr + pph21;
+            
+            const resultText = `
+                Total Gaji: Rp ${formatRupiah(totalGaji)}<br>
+                Masa Kerja: ${masaKerja} bulan<br><br>
+                <strong>THR:</strong> Rp ${formatRupiah(thr)}<br>
+                <strong>PPH 21:</strong> Rp ${formatRupiah(pph21)}<br>
+                <strong>Total Pembayaran:</strong> Rp ${formatRupiah(totalPembayaran)}
+            `;
+            
+            document.getElementById('resultText').innerHTML = resultText;
+            document.getElementById('resultContainer').classList.remove('hidden');
+        });
+        
+        function formatRupiah(angka) {
+            return angka.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,').replace(/\.00$/, '');
+        }
+    </script>
+</body>
+</html>
